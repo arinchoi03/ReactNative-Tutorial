@@ -10,12 +10,18 @@ import {
   AppRegistry,
   StyleSheet,
   Text,
-  View
+  View,
+  Dimensions
 } from 'react-native';
 var RandManager = require('./RandManager.js')
 import Swiper from 'react-native-swiper';
+var NetworkImage = require('react-native-image-progress');
+var Progress = require('react-native-progress');
 
 const NUM_WALLPAPERS = 5;
+
+// this gets the viewport dimensions
+var {width, height} = Dimensions.get('window')
 
 export default class SplashWalls extends Component {
   constructor(props) {
@@ -67,16 +73,29 @@ export default class SplashWalls extends Component {
     var {wallsJSON, isLoading} = this.state
     if (!isLoading) {
       return(
-        <View style={styles.container}>
+        <Swiper
+        dot={<View style={{backgroundColor: 'rgba(255,255,255,.4)', width: 8, height: 8,borderRadius: 10, marginLeft: 3, marginRight: 3, marginTop: 3, marginBottom: 3}} />}
+        activeDot={<View style={{backgroundColor: '#fff', width: 13, height: 13, borderRadius: 7, marginLeft: 7, marginRight: 7}} />}
+        loop={false}
+        onMomentumScrollEnd={this.onMomentumScrollEnd}>
           {wallsJSON.map((wallpaper, index) => {
             return(
-              <Text key={index}>
-                {wallpaper.author}
-              </Text>
+              <View key={index}>
+                <NetworkImage
+                  source={{uri: `https://unsplash.it/${wallpaper.width}/${wallpaper.height}?image=${wallpaper.id}`}}
+                  indicator={Progress.circle}
+                  style={styles.wallpaperImage}
+                  indicatorProps={{
+                    color: '#000',
+                    size: 0,
+                    thickness: 1
+                  }}>
+                </NetworkImage>
+              </View>
             )
           })
         }
-        </View>
+        </Swiper>
         )
     }
   }
@@ -109,6 +128,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: '#000'
+  },
+  wallpaperImage: {
+    flex: 1,
+    width: width,
+    height: height,
     backgroundColor: '#000'
   }
 });
