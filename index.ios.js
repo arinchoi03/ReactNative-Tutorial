@@ -12,6 +12,10 @@ import {
   Text,
   View
 } from 'react-native';
+var RandManager = require('./RandManager.js')
+import Swiper from 'react-native-swiper';
+
+const NUM_WALLPAPERS = 5;
 
 export default class SplashWalls extends Component {
   constructor(props) {
@@ -32,8 +36,15 @@ export default class SplashWalls extends Component {
     fetch(url)
     .then(response => response.json())
     .then(jsonData => {
-      console.log(jsonData)
-      this.setState({isLoading: false})
+      var randomIds = RandManager.uniqueRandomNumbers(NUM_WALLPAPERS, 0, jsonData.length)
+      var walls = [];
+      randomIds.forEach(randomId => {
+        walls.push(jsonData[randomId])
+      })
+      this.setState({
+        isLoading: false,
+        wallsJSON: [].concat(walls)
+      })
     })
     .catch(error => console.log('fetch error' + error))
   }
@@ -53,15 +64,21 @@ export default class SplashWalls extends Component {
   }
 
   renderResults() {
-    return (
-
-    <View style={styles.container}>
-        <Text>
-          Data loaded
-        </Text>
-
-    </View>
-    );
+    var {wallsJSON, isLoading} = this.state
+    if (!isLoading) {
+      return(
+        <View style={styles.container}>
+          {wallsJSON.map((wallpaper, index) => {
+            return(
+              <Text key={index}>
+                {wallpaper.author}
+              </Text>
+            )
+          })
+        }
+        </View>
+        )
+    }
   }
   render() {
     var {isLoading} = this.state;
